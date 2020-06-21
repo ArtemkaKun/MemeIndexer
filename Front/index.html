@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="База для поиска и добавления мемов">
+    <meta name="keywords" content="Мемы, индексация, база">
+    <meta name="author" content="Артем Юрченко">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MemeIndexer</title>
+
+    <link rel="shortcut icon" href="Resources/Images/favicon.png" type="image/x-icon">
+
+    <link rel="stylesheet" type="text/css" href="Resources/CSS/CSSReset.css">
+    <link rel="stylesheet" type="text/css" href="Resources/CSS/indexStyle.css">
+
+    <style>
+        @font-face {
+            font-family: OpenSans;
+            src: url(Resources/Fonts/OpenSans-Regular.ttf);
+        }
+        button, input, p {
+            font-family: OpenSans;
+        }
+
+    </style>
+
+    <script
+            src="https://code.jquery.com/jquery-3.5.1.js"
+            integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+            crossorigin="anonymous">
+    </script>
+
+    <script type="application/javascript" src="Resources/Scripts/HideAddForm.js"></script>
+    <script type="application/javascript" src="Resources/Scripts/FindMemeButton.js"></script>
+    <script type="application/javascript" src="Resources/Scripts/AddMemeButton.js"></script>
+    <script type="application/javascript" src="Resources/Scripts/FindMemeForm.js"></script>
+    <script type="application/javascript" src="Resources/Scripts/AddMemeForm.js"></script>
+</head>
+<body>
+<header>
+    <button class="mainButton" id="findMemeButton">Найти мем</button>
+    <button class="mainButton" id="addMemeButton">Добавить мем</button>
+</header>
+<article>
+    <p>Пожалуйста, введите теги через запятую</p>
+
+    <form id="findMemeForm" accept-charset="UTF-8" action="/meme" method="get">
+                <input class="inputField" type="text" name="mainTags" placeholder="Основные теги" required><br>
+        <input class="inputField" type="text" name="associationTags" placeholder="Ассоциативные теги"><br>
+        <button class="formButton" type="submit">Поиск</button>
+    </form>
+
+    <div id="findResults"></div>
+
+    <form id="addMemeForm" accept-charset="UTF-8" action="/meme" method="post">
+                <input id="memeFile" class="inputField" type="file" name="memeFile" accept=".gif, .png, .jpeg, .jpg" required><br>
+        <input id="mainTags" class="inputField" type="text" name="mainTags" placeholder="Основные теги" required><br>
+        <input id="associantionTags" class="inputField" type="text" name="associantionTags" placeholder="Ассоциативные теги" required><br>
+        <button class="formButton" type="submit">Добавить мем</button>
+    </form>
+</article>
+</body>
+</html>
