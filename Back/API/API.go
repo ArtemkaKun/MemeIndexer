@@ -4,11 +4,8 @@ import (
 	"Back/Structures"
 	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/mxmCherry/translit/ruicao"
-	"golang.org/x/text/transform"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -68,21 +65,12 @@ func authenticateUser(context *gin.Context) {
 func findMeme(context *gin.Context) {
 	memeToFind := GetMemeData(context)
 
-	requestToDBServer, err := PrepareHttpRequestToDBServer(memeToFind)
+	memeImage, err := MakeFindRequestToDBServer(memeToFind)
 	if err != nil {
 		returnErrorToClient(context, err)
 		return
 	}
 
-	httpClient := &http.Client{}
-	response, err := httpClient.Do(requestToDBServer)
-	if err != nil {
-		returnErrorToClient(context, err)
-		return
-	}
-	defer response.Body.Close()
-
-	memeImage, _ := ioutil.ReadAll(response.Body)
 	err = EncodeImageToBase64(context, memeImage)
 
 	if err != nil {
@@ -96,47 +84,40 @@ func GetMemeData(context *gin.Context) (memeToFind Structures.MemeTags) {
 		AssociationTags: strings.Split(context.Query("associationTags"), ","),
 	}
 
-	prepareTagsText(memeToFind.MainTags, memeToFind.AssociationTags)
+	memeToFind.PrepareTagsForWork()
 
 	return memeToFind
 }
 
-func prepareTagsText(tagsArrays... []string) {
-	for _, tagsArray := range tagsArrays {
-		for i, tag := range tagsArray {
-			if len(tag) == 0 {
-				continue
-			}
-
-			tagsArray[i] = strings.ToLower(tag)
-			tagsArray[i] = strings.TrimSpace(tag)
-			tagsArray[i] = transliterateTags(&tag)
-		}
-	}
-}
-
-func transliterateTags(tag *string) (transliteratedTagText string) {
-	transliteratedTagText, _, _ = transform.String(ruicao.ToLatin().Transformer(), *tag)
-	return
-}
-
-func PrepareHttpRequestToDBServer(memeToFind Structures.MemeTags) (requestToDBServer *http.Request, err error) {
-	jsonMemeData, err := ConvertDataToJSON(memeToFind)
+func MakeFindRequestToDBServer(memeToFind Structures.MemeTags) (memeImage []byte, err error){
+	requestToDBServer, err := PrepareHttpRequestToDBServer(memeToFind)
 	if err != nil {
 		return
 	}
 
-	requestToDBServer, err = http.NewRequest("GET", DBServerAddress+"meme", bytes.NewBuffer(jsonMemeData))
+	httpClient := &http.Client{}
+	response, err := httpClient.Do(requestToDBServer)
+	if err != nil {
+		return
+	}
+	defer response.Body.Close()
+
+	memeImage, _ = ioutil.ReadAll(response.Body)
+	return
+}
+
+func PrepareHttpRequestToDBServer(memeToFind Structures.MemeTags) (requestToDBServer *http.Request, err error) {
+	memeDataInJSON, err := memeToFind.ConvertTagsToJSON()
+	if err != nil {
+		return
+	}
+
+	requestToDBServer, err = http.NewRequest("GET", DBServerAddress+"meme", bytes.NewBuffer(memeDataInJSON))
 	if err != nil {
 		return
 	}
 
 	requestToDBServer.Header.Set("Content-Type", "application/json")
-	return
-}
-
-func ConvertDataToJSON(dataToConvert interface{}) (jsonMemeData []byte, err error) {
-	jsonMemeData, err = json.Marshal(dataToConvert)
 	return
 }
 
@@ -149,6 +130,7 @@ func EncodeImageToBase64(context *gin.Context, image []byte) (err error) {
 }
 
 func addMeme(context *gin.Context) {
+	//I NEED THIS CODE COMMENTED!!!
 	//file, err := context.FormFile("file")
 	//if err != nil {
 	//	log.Println(err)
