@@ -12,7 +12,7 @@ func FindMeme(memeTagsFromRequest Structures.MemeTags) (memeImagePath string, er
 		return
 	}
 
-	if len(foundedMemes) != 1 && len(memeTagsFromRequest.AssociationTags) != 0 {
+	if needToSearchByAssociationTags(memeTagsFromRequest, foundedMemes) {
 		foundedMemes, err = findMemesWithTheMostTagsMatch(foundedMemes, memeTagsFromRequest.AssociationTags, false)
 		if err != nil {
 			return
@@ -44,10 +44,9 @@ func findMemesWithTheMostTagsMatch(memes []Structures.Meme, tagsFromRequest []st
 			countOfMatches = findCountOfMatches(meme.AssociationTags, tagsFromRequest)
 		}
 
-		if len(memesWithTheMostMatches) == 0 || theHighestMatchesCount < countOfMatches {
+		if theHighestMatchesCount < countOfMatches {
 			theHighestMatchesCount = countOfMatches
-			memesWithTheMostMatches = nil
-			memesWithTheMostMatches = append(memesWithTheMostMatches, meme)
+			memesWithTheMostMatches = []Structures.Meme{meme}
 		} else if theHighestMatchesCount == countOfMatches {
 			memesWithTheMostMatches = append(memesWithTheMostMatches, meme)
 		}
@@ -55,9 +54,13 @@ func findMemesWithTheMostTagsMatch(memes []Structures.Meme, tagsFromRequest []st
 	return
 }
 
-func findCountOfMatches(actualMemeTags, tagsFromRequest []string) (lengthOfIntersection int){
+func findCountOfMatches(actualMemeTags, tagsFromRequest []string) (lengthOfIntersection int) {
 	tagsMatches := intersect.Simple(actualMemeTags, tagsFromRequest)
 
 	lengthOfIntersection = len(tagsMatches.([]interface{}))
 	return
+}
+
+func needToSearchByAssociationTags(memeTagsFromRequest Structures.MemeTags, foundedMemes []Structures.Meme) bool {
+	return len(foundedMemes) != 1 && len(memeTagsFromRequest.AssociationTags) != 0
 }

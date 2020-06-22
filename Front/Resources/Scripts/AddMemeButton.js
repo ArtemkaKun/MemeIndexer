@@ -22,36 +22,7 @@ function CheckLogin() {
             $("#addMemeForm").show();
             $("#findMemeForm").hide()
         })
-        .fail(function() {
+        .fail(function () {
             alert("Login or password incorrect!");
-        });
-
-    // $.get("/login", {login: userLogin, pass: userPass})
-    //     .done(function (data) {
-    //         if (data === "login") {
-    //             CheckPass();
-    //         }
-    //     })
-    //     .fail(function() {
-    //         alert("Admin login incorrect!");
-    //     });
-}
-
-function CheckPass() {
-    let adminPass = prompt("Admin pass");
-
-    if (adminPass === "") {
-        return;
-    }
-
-    $.get("/adminPass", {pass: adminPass})
-        .done(function (data) {
-            if (data === "pass") {
-                $("#addMemeForm").show();
-                $("#findMemeForm").hide()
-            }
-        })
-        .fail(function() {
-            alert("Admin password incorrect!");
         });
 }
