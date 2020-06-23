@@ -60,3 +60,8 @@ func storeFoundedMemesInSlice(foundedDocuments *mongo.Cursor) (memesSlice []Stru
 	err = foundedDocuments.Err()
 	return
 }
+
+func AddNewMeme(meme Structures.Meme) (err error) {
+	_, err = DatabaseConnections.MemesCollection.InsertOne(context.Background(), meme)
+	return
+}

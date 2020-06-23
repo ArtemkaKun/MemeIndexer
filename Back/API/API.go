@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"strings"
 )
@@ -63,7 +64,7 @@ func authenticateUser(context *gin.Context) {
 }
 
 func findMeme(context *gin.Context) {
-	memeToFind := GetAndPrepareMemeData(context)
+	memeToFind := getAndPrepareMemeData(context)
 
 	memeDataInJSON, err := memeToFind.ConvertTagsToJSON()
 	if err != nil {
@@ -71,21 +72,21 @@ func findMeme(context *gin.Context) {
 		return
 	}
 
-	memeImage, err := MakeFindMemeRequestToDBServer(memeDataInJSON)
+	memeImage, err := makeFindMemeRequestToDBServer(memeDataInJSON)
 	if err != nil {
 		returnErrorToClient(context, err)
 		return
 	}
 
-	err = EncodeImageToBase64(context, memeImage)
+	err = encodeImageToBase64(context, memeImage)
 
 	if err != nil {
 		returnErrorToClient(context, err)
 	}
 }
 
-func MakeFindMemeRequestToDBServer(memeDataInJSON []byte) (memeImage []byte, err error){
-	requestToDBServer, err := PrepareHttpRequestToDBServer(memeDataInJSON, "GET")
+func makeFindMemeRequestToDBServer(memeDataInJSON []byte) (memeImage []byte, err error){
+	requestToDBServer, err := prepareHttpRequestToDBServer(memeDataInJSON, "GET")
 	if err != nil {
 		return
 	}
@@ -95,13 +96,19 @@ func MakeFindMemeRequestToDBServer(memeDataInJSON []byte) (memeImage []byte, err
 	if err != nil {
 		return
 	}
+
+	if response.StatusCode == 500 {
+		err = fmt.Errorf(response.Header.Get("err"))
+		return
+	}
+
 	defer response.Body.Close()
 
 	memeImage, _ = ioutil.ReadAll(response.Body)
 	return
 }
 
-func PrepareHttpRequestToDBServer(memeDataInJSON []byte, requestType string) (requestToDBServer *http.Request, err error) {
+func prepareHttpRequestToDBServer(memeDataInJSON []byte, requestType string) (requestToDBServer *http.Request, err error) {
 	requestToDBServer, err = http.NewRequest(requestType, DBServerAddress+"meme", bytes.NewBuffer(memeDataInJSON))
 	if err != nil {
 		return
@@ -118,9 +125,20 @@ func addMeme(context *gin.Context) {
 		return
 	}
 
+	memeFile, err := generateMemeImageFile(file, context)
+	if err != nil {
+		returnErrorToClient(context, err)
+		return
+	}
+
 	newMeme := Structures.Meme{
-		MemeFile: file,
-		MemeTags: GetAndPrepareMemeData(context),
+		MemeFileBase64: base64.StdEncoding.EncodeToString(memeFile.FileData),
+		MemeTags:       getAndPrepareMemeData(context),
+	}
+
+	err = memeFile.DeleteMemeFile()
+	if err != nil {
+		log.Panic(err)
 	}
 
 	memeDataInJSON, err := newMeme.ConvertTagsToJSON()
@@ -129,7 +147,7 @@ func addMeme(context *gin.Context) {
 		return
 	}
 
-	responseCode, err := MakeAddMemeRequestToDBServer(memeDataInJSON)
+	responseCode, err := makeAddMemeRequestToDBServer(memeDataInJSON)
 
 	if responseCode == "200 OK" {
 		context.Status(http.StatusOK)
@@ -138,8 +156,20 @@ func addMeme(context *gin.Context) {
 	}
 }
 
-func MakeAddMemeRequestToDBServer(memeDataInJSON []byte) (responseCode string, err error){
-	requestToDBServer, err := PrepareHttpRequestToDBServer(memeDataInJSON, "POST")
+func generateMemeImageFile(file *multipart.FileHeader, context *gin.Context) (memeImage Structures.MemeFile, err error){
+	memeImage.GenerateFileName(file.Filename)
+
+	err = context.SaveUploadedFile(file, memeImage.FileName)
+	if err != nil {
+		return
+	}
+
+	err = memeImage.ReadMemeFileData()
+	return
+}
+
+func makeAddMemeRequestToDBServer(memeDataInJSON []byte) (responseCode string, err error){
+	requestToDBServer, err := prepareHttpRequestToDBServer(memeDataInJSON, "POST")
 	if err != nil {
 		return
 	}
@@ -153,11 +183,11 @@ func MakeAddMemeRequestToDBServer(memeDataInJSON []byte) (responseCode string, e
 	return response.Status, nil
 }
 
-func GetAndPrepareMemeData(context *gin.Context) (memeToFind Structures.MemeTags) {
+func getAndPrepareMemeData(context *gin.Context) (memeToFind Structures.MemeTags) {
 	if context.Request.Method == "GET" {
-		memeToFind = GetMemeDataFromGETRequest(context, memeToFind)
+		memeToFind = getMemeDataFromGETRequest(context, memeToFind)
 	} else {
-		memeToFind = GetMemeDataFromPOSTRequest(context, memeToFind)
+		memeToFind = getMemeDataFromPOSTRequest(context, memeToFind)
 	}
 
 	memeToFind.PrepareTagsForWork()
@@ -165,7 +195,7 @@ func GetAndPrepareMemeData(context *gin.Context) (memeToFind Structures.MemeTags
 	return memeToFind
 }
 
-func GetMemeDataFromGETRequest(context *gin.Context, memeToFind Structures.MemeTags) Structures.MemeTags {
+func getMemeDataFromGETRequest(context *gin.Context, memeToFind Structures.MemeTags) Structures.MemeTags {
 	memeToFind = Structures.MemeTags{
 		MainTags:        strings.Split(context.Query("mainTags"), ","),
 		AssociationTags: strings.Split(context.Query("associationTags"), ","),
@@ -173,7 +203,7 @@ func GetMemeDataFromGETRequest(context *gin.Context, memeToFind Structures.MemeT
 	return memeToFind
 }
 
-func GetMemeDataFromPOSTRequest(context *gin.Context, memeToFind Structures.MemeTags) Structures.MemeTags {
+func getMemeDataFromPOSTRequest(context *gin.Context, memeToFind Structures.MemeTags) Structures.MemeTags {
 	memeToFind = Structures.MemeTags{
 		MainTags:        strings.Split(context.PostForm("mainTags"), ","),
 		AssociationTags: strings.Split(context.PostForm("associationTags"), ","),
@@ -181,7 +211,7 @@ func GetMemeDataFromPOSTRequest(context *gin.Context, memeToFind Structures.Meme
 	return memeToFind
 }
 
-func EncodeImageToBase64(context *gin.Context, image []byte) (err error) {
+func encodeImageToBase64(context *gin.Context, image []byte) (err error) {
 	encoder := base64.NewEncoder(base64.StdEncoding, context.Writer)
 	defer encoder.Close()
 
@@ -191,5 +221,6 @@ func EncodeImageToBase64(context *gin.Context, image []byte) (err error) {
 
 func returnErrorToClient(context *gin.Context, err error) {
 	log.Print(err)
+	context.Header("err", err.Error())
 	context.Status(http.StatusInternalServerError)
 }

@@ -2,12 +2,11 @@ package Structures
 
 import (
 	"encoding/json"
-	"mime/multipart"
 )
 
 type Meme struct {
-	MemeFile *multipart.FileHeader `json:"memeImage,omitempty"`
-	MemeTags	`json:",omitempty"`
+	MemeFileBase64 string `json:"memeFile,omitempty"`
+	MemeTags       `json:",omitempty"`
 }
 
 func (meme Meme) ConvertTagsToJSON() (jsonMemeData []byte, err error) {
