@@ -38,7 +38,7 @@ func setGetRequestEndpoints(router *gin.Engine) {
 }
 
 func setPostRequestEndpoints(router *gin.Engine) {
-	//return router.POST("/meme", addMeme)
+	router.POST("/meme", AddMeme)
 }
 
 func (apiRouter *APIRouter) RunServer (port string) {

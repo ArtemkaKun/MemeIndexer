@@ -14,8 +14,13 @@ type MemeTags struct {
 }
 
 func (tags *MemeTags) GetAndPrepareTagsFromRequest(context *gin.Context) {
-	tags.MainTags = strings.Split(context.Query("mainTags"), ",")
-	tags.AssociationTags = strings.Split(context.Query("associationTags"), ",")
+	if context.Request.Method == "GET" {
+		tags.MainTags = strings.Split(context.Query("mainTags"), ",")
+		tags.AssociationTags = strings.Split(context.Query("associationTags"), ",")
+	} else {
+		tags.MainTags = strings.Split(context.PostForm("mainTags"), ",")
+		tags.AssociationTags = strings.Split(context.PostForm("associationTags"), ",")
+	}
 	tags.prepareTagsForWork()
 }
 

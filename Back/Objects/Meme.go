@@ -2,12 +2,13 @@ package Objects
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type Meme struct {
-	MemeFileContent string `json:"memeFile,omitempty"`
+	MemeFile MemeFile `json:"memeFile,omitempty"`
 	MemeTags MemeTags       `json:",omitempty"`
 }
 
@@ -49,5 +50,47 @@ func convertImageToBase64AndSendToClient(context *gin.Context, image []byte) (er
 		return HandleCommonError(err)
 	}
 
+	return
+}
+
+func (meme *Meme) InsertMemeInDB(context *gin.Context) {
+	errorMessage := meme.MemeFile.GetAndPrepareMemeFileFromRequest(context)
+	if errorMessage != "" {
+		context.String(http.StatusInternalServerError, errorMessage)
+		return
+	}
+
+	meme.MemeTags.GetAndPrepareTagsFromRequest(context)
+	memeInJSON, errorMessage := meme.ConvertTagsToJSON()
+	if errorMessage != "" {
+		context.String(http.StatusInternalServerError, errorMessage)
+		return
+	}
+
+	request, errorMessage := PrepareJSONRequest("POST", "meme", memeInJSON)
+	if errorMessage != "" {
+		context.String(http.StatusInternalServerError, errorMessage)
+		return
+	}
+
+	_, errorMessage = MakeRequestToDBServer(request)
+	if errorMessage != "" {
+		context.String(http.StatusInternalServerError, errorMessage)
+		return
+	}
+
+	context.Status(http.StatusOK)
+}
+
+func (meme *Meme) ConvertTagsToJSON() (jsonMemeData []byte, errorMessage string) {
+	memeDataContainer := MemeData{
+		MemeFile: meme.MemeFile.FileDataInBase64,
+		MemeTags: meme.MemeTags,
+	}
+
+	jsonMemeData, err := json.Marshal(memeDataContainer)
+	if err != nil {
+		return nil, HandleCommonError(err)
+	}
 	return
 }

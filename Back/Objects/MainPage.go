@@ -18,3 +18,8 @@ func FindMeme(context *gin.Context) {
 	var meme Meme
 	meme.FindMemeInDB(context)
 }
+
+func AddMeme(context *gin.Context) {
+	var meme Meme
+	meme.InsertMemeInDB(context)
+}
