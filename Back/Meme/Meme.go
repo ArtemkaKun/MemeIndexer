@@ -1,6 +1,8 @@
-package Objects
+package Meme
 
 import (
+	"Back/Error"
+	"Back/Request"
 	"encoding/base64"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -9,7 +11,7 @@ import (
 
 type Meme struct {
 	MemeFile MemeFile `json:"memeFile,omitempty"`
-	MemeTags MemeTags       `json:",omitempty"`
+	MemeTags MemeTags `json:",omitempty"`
 }
 
 func (meme *Meme) FindMemeInDB(context *gin.Context) {
@@ -20,13 +22,13 @@ func (meme *Meme) FindMemeInDB(context *gin.Context) {
 		return
 	}
 
-	request, errorMessage := PrepareJSONRequest("GET", "meme", tagsInJSON)
+	request, errorMessage := Request.PrepareJSONRequest("GET", "meme", tagsInJSON)
 	if errorMessage != "" {
 		context.String(http.StatusInternalServerError, errorMessage)
 		return
 	}
 
-	memeImageFromDB, errorMessage := MakeRequestToDBServer(request)
+	memeImageFromDB, errorMessage := Request.MakeRequestToDBServer(request)
 	if errorMessage != "" {
 		context.String(http.StatusInternalServerError, errorMessage)
 		return
@@ -47,7 +49,7 @@ func convertImageToBase64AndSendToClient(context *gin.Context, image []byte) (er
 
 	_, err := encoder.Write(image)
 	if err != nil {
-		return HandleCommonError(err)
+		return Error.HandleCommonError(err)
 	}
 
 	return
@@ -61,19 +63,19 @@ func (meme *Meme) InsertMemeInDB(context *gin.Context) {
 	}
 
 	meme.MemeTags.GetAndPrepareTagsFromRequest(context)
-	memeInJSON, errorMessage := meme.ConvertTagsToJSON()
+	memeInJSON, errorMessage := meme.ConvertMemeToJSON()
 	if errorMessage != "" {
 		context.String(http.StatusInternalServerError, errorMessage)
 		return
 	}
 
-	request, errorMessage := PrepareJSONRequest("POST", "meme", memeInJSON)
+	request, errorMessage := Request.PrepareJSONRequest("POST", "meme", memeInJSON)
 	if errorMessage != "" {
 		context.String(http.StatusInternalServerError, errorMessage)
 		return
 	}
 
-	_, errorMessage = MakeRequestToDBServer(request)
+	_, errorMessage = Request.MakeRequestToDBServer(request)
 	if errorMessage != "" {
 		context.String(http.StatusInternalServerError, errorMessage)
 		return
@@ -82,7 +84,7 @@ func (meme *Meme) InsertMemeInDB(context *gin.Context) {
 	context.Status(http.StatusOK)
 }
 
-func (meme *Meme) ConvertTagsToJSON() (jsonMemeData []byte, errorMessage string) {
+func (meme *Meme) ConvertMemeToJSON() (jsonMemeData []byte, errorMessage string) {
 	memeDataContainer := MemeData{
 		MemeFile: meme.MemeFile.FileDataInBase64,
 		MemeTags: meme.MemeTags,
@@ -90,7 +92,7 @@ func (meme *Meme) ConvertTagsToJSON() (jsonMemeData []byte, errorMessage string)
 
 	jsonMemeData, err := json.Marshal(memeDataContainer)
 	if err != nil {
-		return nil, HandleCommonError(err)
+		return nil, Error.HandleCommonError(err)
 	}
 	return
 }

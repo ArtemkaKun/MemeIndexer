@@ -1,24 +1,20 @@
-package Objects
+package Error
 
 import "log"
 
 const (
 	InvalidLoginOrPass = "Неправильный логин или пароль!"
-	MemeNotFound = "Совпадений не найдено :("
-	DefaultError = "Кажется, на сервере возникли проблемы"
+	MemeNotFound       = "Совпадений не найдено :("
+	DefaultError       = "Кажется, на сервере возникли проблемы"
 )
 
-func HandleCommonError(err error) (errorMessage string){
+func HandleCommonError(err error) (errorMessage string) {
 	log.Println(err)
-
-	switch err.Error() {
-	default:
-		errorMessage = DefaultError
-	}
+	errorMessage = DefaultError
 	return
 }
 
-func HandleDBServerError(err *string) (errorMessage string){
+func HandleDBServerError(err *string) (errorMessage string) {
 	log.Println("Error from DB: " + *err)
 
 	switch *err {

@@ -5,13 +5,13 @@ $(document).ready(function () {
 });
 
 function CheckLogin() {
-    let userLogin = prompt("Admin login");
+    let userLogin = prompt("Логин");
 
     if (userLogin === "") {
         return;
     }
 
-    let userPass = prompt("Admin pass");
+    let userPass = prompt("Пароль");
 
     if (userPass === "") {
         return;
@@ -19,6 +19,7 @@ function CheckLogin() {
 
     $.get("/userAuth", {login: userLogin, pass: userPass})
         .done(function () {
+            $("#foundedMeme").attr('src', ``);
             $("#addMemeForm").show();
             $("#findMemeForm").hide()
         })

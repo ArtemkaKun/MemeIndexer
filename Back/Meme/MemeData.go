@@ -1,4 +1,4 @@
-package Objects
+package Meme
 
 type MemeData struct {
 	MemeFile string `json:"memeFile,omitempty"`

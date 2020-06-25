@@ -1,4 +1,4 @@
-package Objects
+package API
 
 import (
 	"github.com/gin-gonic/gin"
@@ -41,6 +41,6 @@ func setPostRequestEndpoints(router *gin.Engine) {
 	router.POST("/meme", AddMeme)
 }
 
-func (apiRouter *APIRouter) RunServer (port string) {
+func (apiRouter *APIRouter) RunServer(port string) {
 	log.Panic(apiRouter.router.Run(port))
 }

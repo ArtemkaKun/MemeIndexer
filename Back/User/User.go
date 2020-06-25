@@ -1,20 +1,20 @@
-package Objects
+package User
 
 import (
-	"Back/Structures"
+	"Back/Request"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type User struct {
-	userData Structures.UserAuthData
+	userData UserAuthData
 }
 
 func (user *User) AuthenticateUser(context *gin.Context) {
 	user.getAuthDataFromRequest(context)
 	authRequest := prepareAuthRequest(user.userData)
-	errorMessage := MakeAuthRequestToDBServer(authRequest)
+	errorMessage := Request.MakeAuthRequestToDBServer(authRequest)
 
 	if errorMessage != "" {
 		context.String(http.StatusInternalServerError, errorMessage)
@@ -29,7 +29,7 @@ func (user *User) getAuthDataFromRequest(context *gin.Context) {
 	user.userData.Pass = context.Query("pass")
 }
 
-func prepareAuthRequest(authData Structures.UserAuthData) (authRequest string) {
+func prepareAuthRequest(authData UserAuthData) (authRequest string) {
 	authRequest = fmt.Sprintf("userAuth?login=%v&pass=%v", authData.Login, authData.Pass)
 	return
 }

@@ -23,8 +23,8 @@ $(document).ready(function () {
             data : formData
         }).done(function () {
             alert("Мем успешно добавлен");
-        }).fail(function() {
-            alert("При добавлении мема произошла ошибка");
+        }).fail(function(response) {
+            alert(response.responseText);
         });
 
         $(this).trigger("reset");

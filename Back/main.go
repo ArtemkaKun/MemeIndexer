@@ -6,5 +6,5 @@ import (
 
 func main() {
 	const portForWebsite = ":8080"
-	API.APIRouter.RunServer(portForWebsite)
+	API.Router.RunServer(portForWebsite)
 }

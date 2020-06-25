@@ -1,6 +1,6 @@
-package Structures
+package User
 
 type UserAuthData struct {
 	Login string
-	Pass string
+	Pass  string
 }

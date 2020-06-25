@@ -1,6 +1,7 @@
-package Objects
+package Meme
 
 import (
+	"Back/Error"
 	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -11,34 +12,34 @@ import (
 )
 
 type MemeFile struct {
-	FileName string
-	FileData []byte
+	FileName         string
+	FileData         []byte
 	FileDataInBase64 string
 }
 
 func (file *MemeFile) GetAndPrepareMemeFileFromRequest(context *gin.Context) (errorMessage string) {
 	fileFromRequest, err := context.FormFile("file")
 	if err != nil {
-		return HandleCommonError(err)
+		return Error.HandleCommonError(err)
 	}
 
 	file.generateFileName(fileFromRequest.Filename)
 
 	err = context.SaveUploadedFile(fileFromRequest, file.FileName)
 	if err != nil {
-		return HandleCommonError(err)
+		return Error.HandleCommonError(err)
 	}
 
 	err = file.readMemeFileData()
 	if err != nil {
-		return HandleCommonError(err)
+		return Error.HandleCommonError(err)
 	}
 
 	file.prepareMemeData()
 
 	err = file.deleteMemeFile()
 	if err != nil {
-		return HandleCommonError(err)
+		return Error.HandleCommonError(err)
 	}
 	return
 }

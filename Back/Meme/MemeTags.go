@@ -1,6 +1,7 @@
-package Objects
+package Meme
 
 import (
+	"Back/Error"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/mxmCherry/translit/ruicao"
@@ -49,7 +50,7 @@ func transliterateTags(tag *string) (transliteratedTagText string) {
 func (tags MemeTags) ConvertTagsToJSON() (jsonMemeData []byte, errorMessage string) {
 	jsonMemeData, err := json.Marshal(tags)
 	if err != nil {
-		return nil, HandleCommonError(err)
+		return nil, Error.HandleCommonError(err)
 	}
 	return
 }
