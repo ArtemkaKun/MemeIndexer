@@ -54,6 +54,7 @@ func getUserAuthDataForRequest(context *gin.Context) (receivedUserAuthData Struc
 
 func sendUnauthorizedError(context *gin.Context, err error) {
 	log.Println(err)
+	context.Header("err", err.Error())
 	context.Status(http.StatusUnauthorized)
 }
 

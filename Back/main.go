@@ -2,9 +2,9 @@ package main
 
 import (
 	"Back/API"
-	"log"
 )
 
 func main() {
-	log.Panic(API.Router.Run(":8080"))
+	const portForWebsite = ":8080"
+	API.APIRouter.RunServer(portForWebsite)
 }

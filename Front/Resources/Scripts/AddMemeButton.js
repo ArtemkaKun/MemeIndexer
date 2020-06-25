@@ -22,7 +22,7 @@ function CheckLogin() {
             $("#addMemeForm").show();
             $("#findMemeForm").hide()
         })
-        .fail(function () {
-            alert("Login or password incorrect!");
+        .fail(function (response) {
+            alert(response.responseText);
         });
 }
