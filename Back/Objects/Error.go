@@ -24,6 +24,8 @@ func HandleDBServerError(err *string) (errorMessage string){
 	switch *err {
 	case "mongo: no documents in result":
 		errorMessage = InvalidLoginOrPass
+	case "Nothing was found!":
+		errorMessage = MemeNotFound
 	default:
 		errorMessage = DefaultError
 	}

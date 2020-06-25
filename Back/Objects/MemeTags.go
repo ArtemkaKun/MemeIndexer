@@ -1,7 +1,8 @@
-package Structures
+package Objects
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"github.com/mxmCherry/translit/ruicao"
 	"golang.org/x/text/transform"
 	"strings"
@@ -12,7 +13,13 @@ type MemeTags struct {
 	AssociationTags []string `json:"associationTags"`
 }
 
-func (tags MemeTags) PrepareTagsForWork() {
+func (tags *MemeTags) GetAndPrepareTagsFromRequest(context *gin.Context) {
+	tags.MainTags = strings.Split(context.Query("mainTags"), ",")
+	tags.AssociationTags = strings.Split(context.Query("associationTags"), ",")
+	tags.prepareTagsForWork()
+}
+
+func (tags *MemeTags) prepareTagsForWork() {
 	prepareTagsText(tags.MainTags)
 	prepareTagsText(tags.AssociationTags)
 }
@@ -34,7 +41,10 @@ func transliterateTags(tag *string) (transliteratedTagText string) {
 	return
 }
 
-func (tags MemeTags) ConvertTagsToJSON() (jsonMemeData []byte, err error) {
-	jsonMemeData, err = json.Marshal(tags)
+func (tags MemeTags) ConvertTagsToJSON() (jsonMemeData []byte, errorMessage string) {
+	jsonMemeData, err := json.Marshal(tags)
+	if err != nil {
+		return nil, HandleCommonError(err)
+	}
 	return
 }

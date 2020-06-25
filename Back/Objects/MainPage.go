@@ -13,3 +13,8 @@ func AuthenticateUser(context *gin.Context) {
 	var user User
 	user.AuthenticateUser(context)
 }
+
+func FindMeme(context *gin.Context) {
+	var meme Meme
+	meme.FindMemeInDB(context)
+}

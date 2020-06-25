@@ -10,73 +10,6 @@ func init() {
 	APIRouter.InitializeRouter()
 }
 
-//func findMeme(context *gin.Context) {
-//	memeToFind := getAndPrepareMemeData(context)
-//
-//	memeDataInJSON, err := memeToFind.ConvertTagsToJSON()
-//	if err != nil {
-//		returnErrorToClient(context, err)
-//		return
-//	}
-//
-//	memeImage, err := makeFindMemeRequestToDBServer(memeDataInJSON)
-//	if err != nil {
-//		returnErrorToClient(context, err)
-//		return
-//	}
-//
-//	err = encodeImageToBase64(context, memeImage)
-//	if err != nil {
-//		returnErrorToClient(context, err)
-//	}
-//	context.Status(http.StatusOK)
-//}
-//
-//func makeFindMemeRequestToDBServer(memeDataInJSON []byte) (memeImage []byte, err error){
-//	requestToDBServer, err := prepareHttpRequestToDBServer(memeDataInJSON, "GET")
-//	if err != nil {
-//		return
-//	}
-//
-//	httpClient := &http.Client{}
-//	response, err := httpClient.Do(requestToDBServer)
-//	if err != nil {
-//		return
-//	}
-//
-//	if response.StatusCode == 500 {
-//		if response.Header.Get("err") == "Nothing was found!" {
-//			err = fmt.Errorf(MemeNotFound)
-//		} else {
-//			err = fmt.Errorf(DefaultError)
-//		}
-//		return
-//	}
-//
-//	defer response.Body.Close()
-//
-//	memeImage, _ = ioutil.ReadAll(response.Body)
-//	return
-//}
-//
-//func prepareHttpRequestToDBServer(memeDataInJSON []byte, requestType string) (requestToDBServer *http.Request, err error) {
-//	requestToDBServer, err = http.NewRequest(requestType, DBServerAddress+"meme", bytes.NewBuffer(memeDataInJSON))
-//	if err != nil {
-//		return
-//	}
-//
-//	requestToDBServer.Header.Set("Content-Type", "application/json")
-//	return
-//}
-//
-//func encodeImageToBase64(context *gin.Context, image []byte) (err error) {
-//	encoder := base64.NewEncoder(base64.StdEncoding, context.Writer)
-//	defer encoder.Close()
-//
-//	_, err = encoder.Write(image)
-//	return
-//}
-//
 //func addMeme(context *gin.Context) {
 //	file, err := context.FormFile("file")
 //	if err != nil {
@@ -128,25 +61,7 @@ func init() {
 //	return
 //}
 //
-//func getAndPrepareMemeData(context *gin.Context) (memeToFind Structures.MemeTags) {
-//	if context.Request.Method == "GET" {
-//		memeToFind = getMemeDataFromGETRequest(context, memeToFind)
-//	} else {
-//		memeToFind = getMemeDataFromPOSTRequest(context, memeToFind)
-//	}
 //
-//	memeToFind.PrepareTagsForWork()
-//
-//	return memeToFind
-//}
-//
-//func getMemeDataFromGETRequest(context *gin.Context, memeToFind Structures.MemeTags) Structures.MemeTags {
-//	memeToFind = Structures.MemeTags{
-//		MainTags:        strings.Split(context.Query("mainTags"), ","),
-//		AssociationTags: strings.Split(context.Query("associationTags"), ","),
-//	}
-//	return memeToFind
-//}
 //
 //func getMemeDataFromPOSTRequest(context *gin.Context, memeToFind Structures.MemeTags) Structures.MemeTags {
 //	memeToFind = Structures.MemeTags{

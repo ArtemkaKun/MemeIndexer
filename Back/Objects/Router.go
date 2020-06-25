@@ -34,7 +34,7 @@ func setRoutingPaths(apiRouter *APIRouter) {
 func setGetRequestEndpoints(router *gin.Engine) {
 	router.GET("/", LoadMainPage)
 	router.GET("/userAuth", AuthenticateUser)
-	//router.GET("/meme", findMeme)
+	router.GET("/meme", FindMeme)
 }
 
 func setPostRequestEndpoints(router *gin.Engine) {
