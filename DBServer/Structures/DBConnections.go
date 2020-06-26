@@ -26,7 +26,7 @@ func (DB *DBConnections) InitializeDBConnections() {
 	DB.MemesCollection = connectToCollection(MemesCollection, DB.MemeIndexerDB)
 }
 
-func initializeMongoConnection() (mongoClient *mongo.Client){
+func initializeMongoConnection() (mongoClient *mongo.Client) {
 	var err error
 	const DBAddress string = "mongodb://localhost:27017"
 

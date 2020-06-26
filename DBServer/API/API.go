@@ -8,12 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
 )
 
 var Router *gin.Engine
+
 const MemeImageFolderPath string = "./MemeImages/"
 
 func init() {
@@ -118,7 +120,7 @@ func writeMemeImageToStorage(meme Structures.Meme) (fileName string, err error) 
 		strconv.Itoa(uploadMemeTime.Day()) +
 		strconv.Itoa(uploadMemeTime.Hour()) +
 		strconv.Itoa(uploadMemeTime.Minute()) +
-		strconv.Itoa(uploadMemeTime.Second()) + ".png"
+		strconv.Itoa(uploadMemeTime.Second()) + strconv.Itoa(rand.Int()) + ".png"
 
 	err = ioutil.WriteFile(MemeImageFolderPath + fileName, data, 0644)
 	return
