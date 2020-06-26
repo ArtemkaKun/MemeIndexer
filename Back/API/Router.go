@@ -32,13 +32,13 @@ func setRoutingPaths(apiRouter *APIRouter) {
 }
 
 func setGetRequestEndpoints(router *gin.Engine) {
-	router.GET("/", LoadMainPage)
-	router.GET("/userAuth", AuthenticateUser)
-	router.GET("/meme", FindMeme)
+	router.GET("/", loadMainPage)
+	router.GET("/userAuth", authenticateUser)
+	router.GET("/meme", findMeme)
 }
 
 func setPostRequestEndpoints(router *gin.Engine) {
-	router.POST("/meme", AddMeme)
+	router.POST("/meme", addMeme)
 }
 
 func (apiRouter *APIRouter) RunServer(port string) {

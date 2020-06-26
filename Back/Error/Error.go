@@ -16,7 +16,6 @@ func HandleCommonError(err error) (errorMessage string) {
 
 func HandleDBServerError(err *string) (errorMessage string) {
 	log.Println("Error from DB: " + *err)
-
 	switch *err {
 	case "mongo: no documents in result":
 		errorMessage = InvalidLoginOrPass

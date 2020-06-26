@@ -13,21 +13,21 @@ func init() {
 	Router.InitializeRouter()
 }
 
-func LoadMainPage(context *gin.Context) {
+func loadMainPage(context *gin.Context) {
 	context.HTML(http.StatusOK, "index.html", gin.H{})
 }
 
-func AuthenticateUser(context *gin.Context) {
+func authenticateUser(context *gin.Context) {
 	var user User.User
 	user.AuthenticateUser(context)
 }
 
-func FindMeme(context *gin.Context) {
+func findMeme(context *gin.Context) {
 	var meme Meme.Meme
 	meme.FindMemeInDB(context)
 }
 
-func AddMeme(context *gin.Context) {
+func addMeme(context *gin.Context) {
 	var meme Meme.Meme
 	meme.InsertMemeInDB(context)
 }
